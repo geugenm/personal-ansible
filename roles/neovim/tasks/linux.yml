@@ -13,7 +13,6 @@
     [ -d ~/.cache/nvim ] && mv ~/.cache/nvim{,.bak} || true
   args:
     executable: /bin/bash
-    warn: false
 
 - name: Clone nvim-config to ~/.config/nvim
   git:

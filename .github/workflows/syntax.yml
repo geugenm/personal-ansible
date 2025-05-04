@@ -33,3 +33,7 @@ jobs:
       - name: Syntax check inventory
         run: |
           ansible-inventory --graph -i inventory/hosts.yml
+
+      - name: Dry run
+        run: |
+          ansible-playbook -i inventory/hosts.yml playbooks/site.yml --check

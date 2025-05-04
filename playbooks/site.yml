@@ -2,5 +2,6 @@
 - name: Configure local workstation
   hosts: localhost
   roles:
-    - ../roles/oh-my-zsh
+    - role: ../roles/oh-my-zsh
+      when: ansible_system == 'Linux'
     - ../roles/neovim
