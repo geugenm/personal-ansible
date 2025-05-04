@@ -21,7 +21,7 @@ jobs:
         platform: [linux]
         include:
           - platform: linux
-            os: fedora-latest
+            os: ubuntu-latest
 
     name: Ansible Syntax Check (${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
