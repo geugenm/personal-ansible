@@ -74,6 +74,9 @@ jobs:
           $env:LC_ALL = "C.UTF-8"
           $env:LANG = "en_US.UTF-8"
           $env:LANGUAGE = "en_US.UTF-8"
+          [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+          $env:PYTHONIOENCODING = "utf-8"
+          $env:PYTHONUTF8 = "1"
           Get-ChildItem -Path playbooks -Filter *.yml -Recurse | ForEach-Object { ansible-playbook --syntax-check $_.FullName }
 
       - name: Windows - Syntax check inventory
