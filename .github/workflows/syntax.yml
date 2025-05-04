@@ -18,13 +18,12 @@ jobs:
   syntax-check:
     strategy:
       matrix:
-        # Temp disabled windows due to UTF8 errors with ansible platform: [linux, windows]
-        platform: [linux]
+        platform: [linux, windows]
         include:
           - platform: linux
             os: fedora-latest
-          #- platform: windows
-          #  os: windows-latest
+          - platform: windows
+            os: windows-latest
 
     name: Ansible Syntax Check (${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
@@ -74,6 +73,7 @@ jobs:
         if: matrix.platform == 'windows'
         shell: cmd
         run: |
+          cmd /K chcp 65001
           chcp 65001
           set LC_ALL=C.UTF-8
           set PYTHONIOENCODING=utf-8
