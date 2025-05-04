@@ -6,15 +6,6 @@
   dnf:
     update_cache: yes
 
-- name: Enable RPM Fusion repositories
-  become: true
-  dnf:
-    name:
-      - "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm"
-      - "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm"
-    state: present
-  register: rpm_fusion
-
 - name: Define application groups
   set_fact:
     dev_tools:
