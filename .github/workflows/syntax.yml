@@ -19,7 +19,7 @@ jobs:
         platform: [linux, windows]
         include:
           - platform: linux
-            os: ubuntu-latest
+            os: fedora-latest
           - platform: windows
             os: windows-latest
 
