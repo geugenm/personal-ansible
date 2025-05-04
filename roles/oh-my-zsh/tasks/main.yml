@@ -1,36 +1,54 @@
 ---
-- name: Install zsh
+- name: Install zsh package
   become: true
   ansible.builtin.package:
     name: zsh
     state: present
+  register: zsh_install_result
+
+- name: Determine zsh executable path
+  ansible.builtin.command: which zsh
+  register: zsh_path
+  changed_when: false
+  failed_when: zsh_path.rc != 0
+  check_mode: false
+
+- name: Display zsh path
+  ansible.builtin.debug:
+    msg: "Found zsh at {{ zsh_path.stdout }}"
+  when: zsh_path.stdout is defined
 
 - name: Set user shell to zsh
   become: true
   ansible.builtin.user:
     name: "{{ omz_user }}"
-    shell: /bin/zsh
+    shell: "{{ zsh_path.stdout }}"
+  when: zsh_path.stdout is defined and zsh_path.stdout | length > 0
+  register: shell_set_result
+  failed_when:
+    - shell_set_result is failed
+    - "'unable to modify' not in shell_set_result.msg"
 
 - name: Clone Oh My Zsh
   ansible.builtin.git:
     repo: https://github.com/ohmyzsh/ohmyzsh.git
-    dest: "/home/{{ omz_user }}/.oh-my-zsh"
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh"
     depth: 1
 
 - name: Clone zsh-autosuggestions
   ansible.builtin.git:
     repo: https://github.com/zsh-users/zsh-autosuggestions
-    dest: "/home/{{ omz_user }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
     depth: 1
 
 - name: Clone zsh-syntax-highlighting
   ansible.builtin.git:
     repo: https://github.com/zsh-users/zsh-syntax-highlighting
-    dest: "/home/{{ omz_user }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
     depth: 1
 
 - name: Create zshrc from template
   ansible.builtin.template:
     src: zshrc.j2
-    dest: "/home/{{ omz_user }}/.zshrc"
+    dest: "{{ ansible_env.HOME }}/.zshrc"
     backup: true
