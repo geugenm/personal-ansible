@@ -34,7 +34,7 @@ jobs:
 
       - name: apt update
         run: |
-          apt update
+          sudo apt update
 
       - name: Linux - Syntax check playbooks
         if: matrix.platform == 'linux'
