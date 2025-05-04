@@ -1,0 +1,11 @@
+---
+omz_user: "{{ ansible_user_id }}"
+omz_group: "{{ ansible_user_id }}"
+omz_zsh_theme: "lambda"
+omz_plugins:
+  - git
+  - dnf
+  - sudo
+  - history-substring-search
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting

@@ -1,0 +1,5 @@
+---
+- name: Configure local workstation
+  hosts: localhost
+  roles:
+    - oh-my-zsh
