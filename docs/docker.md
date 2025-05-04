@@ -7,7 +7,7 @@ This README provides instructions for building, tagging, and pushing the ansible
 Build the Docker image locally:
 
 ```bash
-docker build -t personal_ansible -f docker/Dockerfile .
+docker build -t personal_ansible -f Dockerfile .
 ```
 
 ## Publishing to GitHub Container Registry
