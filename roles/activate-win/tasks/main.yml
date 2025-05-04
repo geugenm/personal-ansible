@@ -1,0 +1,23 @@
+---
+- name: Create downloads directory if needed
+  win_file:
+    path: "{{ ansible_env.USERPROFILE }}\\Downloads"
+    state: directory
+
+- name: Clone KMS activation repository
+  win_shell: |
+    Set-Location $env:USERPROFILE\Downloads
+    if (-not (Test-Path "KMS_VL_ALL_AIO")) {
+      git clone https://github.com/abbodi1406/KMS_VL_ALL_AIO.git
+      Write-Output "REPO_CLONED"
+    } else {
+      Write-Output "REPO_ALREADY_EXISTS"
+    }
+  register: kms_clone
+  changed_when: kms_clone.stdout.trim() == "REPO_CLONED"
+
+- name: Run KMS activation script (non-interactive)
+  win_shell: |
+    Set-Location $env:USERPROFILE\Downloads\KMS_VL_ALL_AIO
+    cmd /c start /wait KMS_VL_ALL_AIO.cmd
+  when: kms_clone is succeeded

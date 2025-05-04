@@ -12,3 +12,14 @@
       when: ansible_system == 'Windows'
     - role: ../roles/win-dev-env
       when: ansible_system == 'Windows'
+
+    # Option 1: Enable via variable
+    # ansible-playbook -i inventory/hosts.yml playbooks/site.yml -e "enable_windows_activation=true"
+
+    # Option 2: Enable via tag (safest option)
+    # ansible-playbook -i inventory/hosts.yml playbooks/site.yml --tags windows_activation
+    - role: ../roles/activate-win
+      when: ansible_os_family == 'Windows' and enable_windows_activation | default(false) | bool
+      tags:
+        - never
+        - windows_activation
