@@ -62,6 +62,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.13"
+          cache: pip
 
       - name: Windows - Install Ansible
         if: matrix.platform == 'windows'
@@ -72,11 +73,11 @@ jobs:
       - name: Windows - Syntax check playbooks
         if: matrix.platform == 'windows'
         shell: pwsh
+        env:
+          LC_ALL: C.UTF-8
+          PYTHONIOENCODING: utf-8
+          PYTHONUTF8: 1
         run: |
-          $env:LC_ALL = 'C.UTF-8';
-          $env:PYTHONIOENCODING = 'utf-8';
-          $env:PYTHONUTF8 = '1';
-
           Get-ChildItem -Path playbooks -Filter *.yml -Recurse | ForEach-Object {
             python -m ansible.cli.playbook --syntax-check $_.FullName
           }
