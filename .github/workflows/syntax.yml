@@ -71,15 +71,17 @@ jobs:
 
       - name: Windows - Syntax check playbooks
         if: matrix.platform == 'windows'
-        shell: cmd
+        shell: pwsh
         run: |
-          chcp 65001 &&
-          set LC_ALL=C.UTF-8 &&
-          set PYTHONIOENCODING=utf-8 &&
-          set PYTHONUTF8=1 &&
-          for /f "delims=" %%f in ('dir /b /s playbooks\*.yml') do (
-            python -m ansible.cli.playbook --syntax-check "%%f"
-          )
+          [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
+          [Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
+          $env:LC_ALL = 'C.UTF-8'
+          $env:PYTHONIOENCODING = 'utf-8'
+          $env:PYTHONUTF8 = '1'
+
+          Get-ChildItem -Path playbooks -Filter *.yml -Recurse | ForEach-Object {
+            python -m ansible.cli.playbook --syntax-check $_.FullName
+          }
 
       - name: Windows - Syntax check inventory
         if: matrix.platform == 'windows'
