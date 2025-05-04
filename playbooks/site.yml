@@ -13,9 +13,9 @@
   hosts: localhost
   roles:
     - role: linux-apps
-      when: ansible_system == 'Linux'
+      when: ansible_os_family == 'RedHat'
     - role: oh-my-zsh
-      when: ansible_system == 'Linux'
+      when: ansible_os_family == 'RedHat'
 
 - name: Configure Windows environment
   hosts: localhost

@@ -39,5 +39,5 @@ jobs:
         shell: pwsh
         run: |
           chcp 65001
-          ansible-inventory --graph -i inventory/hosts.yml || exit /b 1
-          ansible-playbook -i inventory/hosts.yml playbooks/site.yml --check || exit /b 1
+          ansible-inventory --graph -i inventory/hosts.yml 
+          ansible-playbook -i inventory/hosts.yml playbooks/site.yml --check
