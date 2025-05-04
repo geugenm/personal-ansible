@@ -74,10 +74,10 @@ jobs:
         shell: cmd
         run: |
           cmd /K chcp 65001
-          chcp 65001
-          set LC_ALL=C.UTF-8
-          set PYTHONIOENCODING=utf-8
-          set PYTHONUTF8=1
+          chcp 65001 &&
+          set LC_ALL=C.UTF-8 &&
+          set PYTHONIOENCODING=utf-8 &&
+          set PYTHONUTF8=1 &&
           for /f "delims=" %%f in ('dir /b /s playbooks\*.yml') do (
             python -m ansible.cli.playbook --syntax-check "%%f"
           )
