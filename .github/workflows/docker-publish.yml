@@ -109,4 +109,4 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Ansible container
-        run: docker run --rm -v ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        run: docker run -it --rm -v $(pwd):/workspace ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
