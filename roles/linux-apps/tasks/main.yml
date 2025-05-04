@@ -50,8 +50,6 @@
       - chromium
     terminals:
       - alacritty
-    gaming:
-      - steam
 
 - name: Install developer tools
   become: true
@@ -101,13 +99,6 @@
     name: "{{ terminals }}"
     state: present
   register: terminal_install
-
-- name: Install gaming applications
-  become: true
-  dnf:
-    name: "{{ gaming }}"
-    state: present
-  register: gaming_install
 
 - name: Enable Flathub repository
   become: true
