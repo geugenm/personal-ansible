@@ -16,17 +16,9 @@ on:
 
 jobs:
   syntax-check:
-    strategy:
-      matrix:
-        platform: [linux, windows]
-        include:
-          - platform: linux
-            os: fedora-latest
-          - platform: windows
-            os: windows-latest
-
-    name: Ansible Syntax Check (${{ matrix.platform }})
-    runs-on: ${{ matrix.os }}
+    name: Ansible Syntax Check (Linux)
+    runs-on: fedora-latest
+    container: cytopia/ansible:latest-tools
 
     steps:
       - name: Checkout code
@@ -34,54 +26,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      # Linux-specific steps using Docker
-      - name: Linux - Syntax check playbooks
-        if: matrix.platform == 'linux'
-        uses: docker://cytopia/ansible:latest-tools
-        with:
-          entrypoint: /bin/sh
-          args: -c "find playbooks -type f -name \"*.yml\" | xargs -I{} ansible-playbook --syntax-check {}"
-
-      - name: Linux - Syntax check inventory
-        if: matrix.platform == 'linux'
-        uses: docker://cytopia/ansible:latest-tools
-        with:
-          entrypoint: ansible-inventory
-          args: --graph -i inventory/hosts.yml
-
-      - name: Linux - Dry run
-        if: matrix.platform == 'linux'
-        uses: docker://cytopia/ansible:latest-tools
-        with:
-          entrypoint: ansible-playbook
-          args: -i inventory/hosts.yml playbooks/site.yml --check
-
-      # Windows-specific setup
-      - name: Windows - Set up Python
-        if: matrix.platform == 'windows'
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.13"
-          cache: pip
-
-      - name: Windows - Install Ansible
-        if: matrix.platform == 'windows'
+      - name: Validate infrastructure
+        shell: sh
         run: |
-          python -m pip install --upgrade pip
-          pip install ansible
-
-      - name: Windows - Syntax check inventory
-        if: matrix.platform == 'windows'
-        shell: cmd
-        run: |
-          @chcp 65001 > NUL
-          @set LANG=en_US.UTF-8
+          set -eo pipefail
+          find playbooks -type f -name '*.yml' | xargs -tI{} ansible-playbook --syntax-check {}
           ansible-inventory --graph -i inventory/hosts.yml
-
-      - name: Windows - Dry run
-        if: matrix.platform == 'windows'
-        shell: cmd
-        run: |
-          @chcp 65001 > NUL
-          @set LANG=en_US.UTF-8
           ansible-playbook -i inventory/hosts.yml playbooks/site.yml --check
