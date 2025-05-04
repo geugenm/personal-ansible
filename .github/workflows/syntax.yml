@@ -6,11 +6,13 @@ on:
       - "roles/**/*.yml"
       - "playbooks/**/*.yml"
       - "inventory/**/*.yml"
+      - ".github/workflows/**/*.yml"
   pull_request:
     paths:
       - "roles/**/*.yml"
       - "playbooks/**/*.yml"
       - "inventory/**/*.yml"
+      - ".github/workflows/**/*.yml"
 
 jobs:
   syntax-check:
