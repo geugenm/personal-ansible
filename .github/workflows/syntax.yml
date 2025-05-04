@@ -73,8 +73,6 @@ jobs:
         if: matrix.platform == 'windows'
         shell: pwsh
         run: |
-          [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false) &&
-          [Console]::InputEncoding = [Text.UTF8Encoding]::new($false) &&
           $env:LC_ALL = 'C.UTF-8' &&
           $env:PYTHONIOENCODING = 'utf-8' &&
           $env:PYTHONUTF8 = '1' &&
