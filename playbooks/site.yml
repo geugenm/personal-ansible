@@ -1,27 +1,37 @@
 ---
-- name: Configure local workstation
+# site.yml: Main playbook for workstation configuration
+# Usage:
+#   Standard: ansible-playbook -i inventory/hosts.yml playbooks/site.yml
+#   Windows Activation: Add --tags windows_activation
+
+- name: Configure cross-platform components
   hosts: localhost
   roles:
-    - ../roles/neovim
+    - neovim
 
-    - role: ../roles/oh-my-zsh
+- name: Configure Linux environment
+  hosts: localhost
+  roles:
+    - role: linux-apps
       when: ansible_system == 'Linux'
-    - role: ../roles/linux-apps
+    - role: oh-my-zsh
       when: ansible_system == 'Linux'
-    - role: ../roles/win-apps
+
+- name: Configure Windows environment
+  hosts: localhost
+  roles:
+    - role: win-apps
       when: ansible_system == 'Windows'
-    - role: ../roles/starship
+    - role: starship
       when: ansible_system == 'Windows'
-    - role: ../roles/win-dev-env
+    - role: win-dev-env
       when: ansible_system == 'Windows'
 
-    # Option 1: Enable via variable
-    # ansible-playbook -i inventory/hosts.yml playbooks/site.yml -e "enable_windows_activation=true"
-
-    # Option 2: Enable via tag (safest option)
-    # ansible-playbook -i inventory/hosts.yml playbooks/site.yml --tags windows_activation
-    - role: ../roles/activate-win
-      when: ansible_os_family == 'Windows' and enable_windows_activation | default(false) | bool
-      tags:
-        - never
-        - windows_activation
+- name: Windows Activation (Optional)
+  hosts: localhost
+  roles:
+    - role: activate-win
+      when: ansible_system == 'Windows' and enable_windows_activation | default(false) | bool
+  tags:
+    - never
+    - windows_activation
