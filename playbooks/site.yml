@@ -6,6 +6,8 @@
 
     - role: ../roles/oh-my-zsh
       when: ansible_system == 'Linux'
+    - role: ../roles/linux-apps
+      when: ansible_system == 'Linux'
     - role: ../roles/win-apps
       when: ansible_system == 'Windows'
     - role: ../roles/starship

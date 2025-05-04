@@ -4,7 +4,7 @@ LABEL maintainer="60469435+geugenm@users.noreply.github.com"
 LABEL description="Minimal Fedora container for Ansible playbook execution"
 
 RUN dnf -y update \
-  && dnf -y install python3 python3-pip openssh-clients sshpass \
+  && dnf -y install python3 python3-pip openssh-clients sshpass ansible \
   sudo which tar unzip git \
   && python3 -m pip install --no-cache-dir ansible \
   && dnf clean all \
@@ -27,4 +27,5 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV ANSIBLE_HOST_KEY_CHECKING=false
 
-CMD ["bash"]
+ENTRYPOINT ["ansible-playbook"]
+CMD ["-i", "inventory/hosts.yml", "playbooks/site.yml"]

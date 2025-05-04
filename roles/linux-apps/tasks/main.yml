@@ -1,0 +1,159 @@
+---
+# Fedora Linux software provisioning
+
+- name: Update package cache
+  become: true
+  dnf:
+    update_cache: yes
+
+- name: Enable RPM Fusion repositories
+  become: true
+  dnf:
+    name:
+      - "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm"
+      - "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm"
+    state: present
+  register: rpm_fusion
+
+- name: Define application groups
+  set_fact:
+    dev_tools:
+      - git
+      - neovim
+      - vim
+      - tmux
+      - cmake
+      - gcc
+      - g++
+      - clang
+      - python3-pip
+      - nodejs
+      - npm
+      - doxygen
+      - ripgrep
+      - rust
+      - cargo
+      - fzf
+      - ghidra
+      - zathura
+    tex_tools:
+      - texlive-scheme-basic
+      - texlive-latex
+      - texlive-collection-latexextra
+    system_utils:
+      - gnome-tweaks
+      - timeshift
+      - flameshot
+      - copyq
+      - flatpak
+    media_apps:
+      - vlc
+      - mpv
+      - obs-studio
+    office_productivity:
+      - libreoffice
+      - gimp
+      - inkscape
+      - shotwell
+    browsers:
+      - chromium
+    terminals:
+      - alacritty
+    gaming:
+      - steam
+    communication:
+      - discord
+
+- name: Install developer tools
+  become: true
+  dnf:
+    name: "{{ dev_tools }}"
+    state: present
+  register: dev_install
+
+- name: Install LaTeX tools
+  become: true
+  dnf:
+    name: "{{ tex_tools }}"
+    state: present
+  register: tex_install
+
+- name: Install system utilities
+  become: true
+  dnf:
+    name: "{{ system_utils }}"
+    state: present
+  register: sys_install
+
+- name: Install media applications
+  become: true
+  dnf:
+    name: "{{ media_apps }}"
+    state: present
+  register: media_install
+
+- name: Install office and productivity applications
+  become: true
+  dnf:
+    name: "{{ office_productivity }}"
+    state: present
+  register: office_install
+
+- name: Install browsers
+  become: true
+  dnf:
+    name: "{{ browsers }}"
+    state: present
+  register: browser_install
+
+- name: Install terminal emulators
+  become: true
+  dnf:
+    name: "{{ terminals }}"
+    state: present
+  register: terminal_install
+
+- name: Install gaming applications
+  become: true
+  dnf:
+    name: "{{ gaming }}"
+    state: present
+  register: gaming_install
+
+- name: Install communication apps
+  become: true
+  dnf:
+    name: "{{ communication }}"
+    state: present
+  register: communication_install
+
+- name: Enable Flathub repository
+  become: true
+  command: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  changed_when: false
+
+- name: Install Flatpak applications
+  become: true
+  flatpak:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - com.obsidian.Obsidian
+    - org.kde.krita
+    - ru.yandex.Browser
+    - org.telegram.desktop
+  register: flatpak_install
+
+- name: Collect package installation failures
+  set_fact:
+    failed_packages:
+      "{{ (dev_install.results + tex_install.results + sys_install.results + media_install.results +
+      office_install.results + browser_install.results + terminal_install.results +
+      gaming_install.results + communication_install.results) |
+      selectattr('failed', 'equalto', true) |
+      map(attribute='item') | list }}"
+
+- name: Report installation failures
+  debug:
+    msg: "Failed to install the following packages: {{ failed_packages | join(', ') }}"
+  when: failed_packages | length > 0

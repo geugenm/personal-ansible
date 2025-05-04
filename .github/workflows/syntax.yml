@@ -74,6 +74,7 @@ jobs:
         shell: cmd
         run: |
           chcp 65001
+          set LC_ALL=C.UTF-8
           set PYTHONIOENCODING=utf-8
           set PYTHONUTF8=1
           for /f "delims=" %%f in ('dir /b /s playbooks\*.yml') do (
