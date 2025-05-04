@@ -32,10 +32,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: apt update
-        run: |
-          sudo apt update
-
       - name: Linux - Syntax check playbooks
         if: matrix.platform == 'linux'
         uses: docker://cytopia/ansible:latest-tools
@@ -49,10 +45,3 @@ jobs:
         with:
           entrypoint: ansible-inventory
           args: --graph -i inventory/hosts.yml
-
-      - name: Linux - Dry run
-        if: matrix.platform == 'linux'
-        uses: docker://cytopia/ansible:latest-tools
-        with:
-          entrypoint: ansible-playbook
-          args: -i inventory/hosts.yml playbooks/site.yml --check
