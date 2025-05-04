@@ -16,9 +16,15 @@ on:
 
 jobs:
   syntax-check:
-    name: Ansible Syntax Check (Linux)
-    runs-on: fedora-latest
-    container: cytopia/ansible:latest-tools
+    strategy:
+      matrix:
+        platform: [linux]
+        include:
+          - platform: linux
+            os: fedora-latest
+
+    name: Ansible Syntax Check (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
@@ -26,10 +32,23 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Validate infrastructure
-        shell: sh
-        run: |
-          set -eo pipefail
-          find playbooks -type f -name '*.yml' | xargs -tI{} ansible-playbook --syntax-check {}
-          ansible-inventory --graph -i inventory/hosts.yml
-          ansible-playbook -i inventory/hosts.yml playbooks/site.yml --check
+      - name: Linux - Syntax check playbooks
+        if: matrix.platform == 'linux'
+        uses: docker://cytopia/ansible:latest-tools
+        with:
+          entrypoint: /bin/sh
+          args: -c "find playbooks -type f -name \"*.yml\" | xargs -I{} ansible-playbook --syntax-check {}"
+
+      - name: Linux - Syntax check inventory
+        if: matrix.platform == 'linux'
+        uses: docker://cytopia/ansible:latest-tools
+        with:
+          entrypoint: ansible-inventory
+          args: --graph -i inventory/hosts.yml
+
+      - name: Linux - Dry run
+        if: matrix.platform == 'linux'
+        uses: docker://cytopia/ansible:latest-tools
+        with:
+          entrypoint: ansible-playbook
+          args: -i inventory/hosts.yml playbooks/site.yml --check
