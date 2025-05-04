@@ -1,0 +1,44 @@
+name: Ansible Syntax Check
+
+on:
+  push:
+    paths:
+      - "**.yml"
+      - "**.yaml"
+  pull_request:
+    paths:
+      - "**.yml"
+      - "**.yaml"
+
+jobs:
+  syntax-check:
+    name: Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Ansible
+        run: pip install ansible
+
+      - name: Run syntax check on playbooks
+        run: |
+          find . -type f -name "*.yml" -o -name "*.yaml" | grep -v "^\./\.github" | while read file; do
+            if grep -q "^- " "$file" || grep -q "^hosts:" "$file"; then
+              echo "Checking $file"
+              ansible-playbook --syntax-check "$file" || exit 1
+            fi
+          done
+
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint-action@main
+        with:
+          args: "--profile=production"
