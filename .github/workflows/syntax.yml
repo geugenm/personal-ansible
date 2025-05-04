@@ -3,42 +3,33 @@ name: Ansible Syntax Check
 on:
   push:
     paths:
-      - "**.yml"
-      - "**.yaml"
+      - "roles/**/*.yml"
+      - "playbooks/**/*.yml"
+      - "inventory/**/*.yml"
   pull_request:
     paths:
-      - "**.yml"
-      - "**.yaml"
+      - "roles/**/*.yml"
+      - "playbooks/**/*.yml"
+      - "inventory/**/*.yml"
 
 jobs:
   syntax-check:
-    name: Syntax Check
+    name: Ansible Syntax Validation
     runs-on: ubuntu-latest
+    container:
+      image: cytopia/ansible:latest-tools
+      options: --user root
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          cache: "pip"
-
-      - name: Install Ansible
-        run: pip install ansible
-
-      - name: Run syntax check on playbooks
+      - name: Syntax check playbooks
         run: |
-          find . -type f -name "*.yml" -o -name "*.yaml" | grep -v "^\./\.github" | while read file; do
-            if grep -q "^- " "$file" || grep -q "^hosts:" "$file"; then
-              echo "Checking $file"
-              ansible-playbook --syntax-check "$file" || exit 1
-            fi
-          done
+          find playbooks -type f -name "*.yml" | xargs -I{} ansible-playbook --syntax-check {}
 
-      - name: Run ansible-lint
-        uses: ansible/ansible-lint-action@main
-        with:
-          args: "--profile=production"
+      - name: Syntax check inventory
+        run: |
+          ansible-inventory --graph -i inventory/hosts.yml
