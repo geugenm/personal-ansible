@@ -32,6 +32,10 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: apt update
+        run: |
+          apt update
+
       - name: Linux - Syntax check playbooks
         if: matrix.platform == 'linux'
         uses: docker://cytopia/ansible:latest-tools
