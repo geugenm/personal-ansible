@@ -73,7 +73,6 @@ jobs:
         if: matrix.platform == 'windows'
         shell: cmd
         run: |
-          cmd /K chcp 65001
           chcp 65001 &&
           set LC_ALL=C.UTF-8 &&
           set PYTHONIOENCODING=utf-8 &&
