@@ -1,5 +1,5 @@
 ---
-# Fedora Linux software provisioning
+# dnf software provisioning
 
 - name: Update package cache
   become: true
@@ -34,7 +34,7 @@
       - rust
       - cargo
       - fzf
-      - ghidra
+      - radare2
       - zathura
     tex_tools:
       - texlive-scheme-basic
@@ -61,8 +61,6 @@
       - alacritty
     gaming:
       - steam
-    communication:
-      - discord
 
 - name: Install developer tools
   become: true
@@ -120,13 +118,6 @@
     state: present
   register: gaming_install
 
-- name: Install communication apps
-  become: true
-  dnf:
-    name: "{{ communication }}"
-    state: present
-  register: communication_install
-
 - name: Enable Flathub repository
   become: true
   command: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -138,22 +129,9 @@
     name: "{{ item }}"
     state: present
   loop:
+    - com.discordapp.Discord
     - com.obsidian.Obsidian
-    - org.kde.krita
     - ru.yandex.Browser
     - org.telegram.desktop
+    - org.ghidra_sre.Ghidra
   register: flatpak_install
-
-- name: Collect package installation failures
-  set_fact:
-    failed_packages:
-      "{{ (dev_install.results + tex_install.results + sys_install.results + media_install.results +
-      office_install.results + browser_install.results + terminal_install.results +
-      gaming_install.results + communication_install.results) |
-      selectattr('failed', 'equalto', true) |
-      map(attribute='item') | list }}"
-
-- name: Report installation failures
-  debug:
-    msg: "Failed to install the following packages: {{ failed_packages | join(', ') }}"
-  when: failed_packages | length > 0

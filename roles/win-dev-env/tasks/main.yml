@@ -8,11 +8,6 @@
     type: dword
   register: dev_mode_enabled
 
-- name: Display Developer Mode status message
-  win_debug:
-    msg: "Windows Developer Mode enabled - symbolic links now available in cmd/PowerShell"
-  when: dev_mode_enabled.changed
-
 - name: Check virtualization capability
   win_shell: |
     $vmProcessor = Get-WmiObject -Class Win32_Processor | Select-Object -First 1
