@@ -1,0 +1,58 @@
+---
+# Enable virtualization features for Windows development environment
+- name: Enable Windows Developer Mode for symbolic links
+  win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock
+    name: AllowDevelopmentWithoutDevLicense
+    data: 1
+    type: dword
+  register: dev_mode_enabled
+
+- name: Display Developer Mode status message
+  win_debug:
+    msg: "Windows Developer Mode enabled - symbolic links now available in cmd/PowerShell"
+  when: dev_mode_enabled.changed
+
+- name: Check virtualization capability
+  win_shell: |
+    $vmProcessor = Get-WmiObject -Class Win32_Processor | Select-Object -First 1
+    if ($vmProcessor.SecondLevelAddressTranslationExtensions -notcontains "True") {
+      Write-Output "VIRT_DISABLED"
+      exit 1
+    } else {
+      Write-Output "VIRT_ENABLED"
+      exit 0
+    }
+  register: virt_check
+  failed_when: virt_check.stdout.trim() == "VIRT_DISABLED"
+  changed_when: false
+
+- name: Enable Windows Sandbox feature
+  win_feature:
+    name: Containers-DisposableClientVM
+    state: present
+  register: sandbox_result
+  when: virt_check.rc == 0
+
+- name: Check WSL feature status
+  win_shell: |
+    (Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux).State
+  register: wsl_status
+  changed_when: false
+
+- name: Enable Windows Subsystem for Linux
+  win_feature:
+    name: Microsoft-Windows-Subsystem-Linux
+    state: present
+  when: wsl_status.stdout.trim() != 'Enabled'
+  register: wsl_result
+
+- name: Notify about pending reboot
+  debug:
+    msg: "System requires reboot to complete virtualization feature installation"
+  when: sandbox_result.reboot_required or (wsl_result is defined and wsl_result.reboot_required)
+
+- name: Set reboot flag if required
+  set_fact:
+    reboot_required: true
+  when: sandbox_result.reboot_required or (wsl_result is defined and wsl_result.reboot_required)

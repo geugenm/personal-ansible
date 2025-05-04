@@ -2,8 +2,11 @@
 - name: Configure local workstation
   hosts: localhost
   roles:
+    - ../roles/neovim
+
     - role: ../roles/oh-my-zsh
       when: ansible_system == 'Linux'
-    - ../roles/neovim
     - role: ../roles/starship
+      when: ansible_system == 'Windows'
+    - role: ../roles/win-dev-env
       when: ansible_system == 'Windows'
