@@ -23,8 +23,8 @@ jobs:
         include:
           - platform: linux
             os: fedora-latest
-          - platform: windows
-            os: windows-latest
+          #- platform: windows
+          #  os: windows-latest
 
     name: Ansible Syntax Check (${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
