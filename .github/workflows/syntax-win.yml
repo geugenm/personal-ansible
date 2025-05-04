@@ -1,0 +1,58 @@
+name: Ansible Windows Syntax Check
+
+on:
+  push:
+    paths:
+      - "roles/**/*.yml"
+      - "playbooks/**/*.yml"
+      - "inventory/**/*.yml"
+      - ".github/workflows/**/*.yml"
+  pull_request:
+    paths:
+      - "roles/**/*.yml"
+      - "playbooks/**/*.yml"
+      - "inventory/**/*.yml"
+      - ".github/workflows/**/*.yml"
+
+jobs:
+  windows-validation:
+    name: Ansible Validation (Windows)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: cmd
+        working-directory: ${{ github.workspace }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure nuclear UTF-8 environment
+        run: |
+          @chcp 65001 > NUL
+          @set PYTHONIOENCODING=utf-8
+          @set PYTHONUTF8=1
+          @set LANG=en_US.UTF-8
+          @set LC_ALL=en_US.UTF-8
+          @set ANSIBLE_FORCE_COLOR=1
+          echo "Active code page: %_CODEPAGE%"
+
+      - name: Install Python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+
+      - name: Validate infrastructure
+        run: |
+          @chcp 65001 > NUL
+          for /r playbooks %%f in (*.yml) do (
+            python -m ansible.cli.playbook --syntax-check "%%f" || exit /b 1
+          )
+          ansible-inventory --graph -i inventory/hosts.yml || exit /b 1
+          ansible-playbook -i inventory/hosts.yml playbooks/site.yml --check || exit /b 1
