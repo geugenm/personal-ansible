@@ -5,3 +5,5 @@
     - role: ../roles/oh-my-zsh
       when: ansible_system == 'Linux'
     - ../roles/neovim
+    - role: ../roles/starship
+      when: ansible_system == 'Windows'

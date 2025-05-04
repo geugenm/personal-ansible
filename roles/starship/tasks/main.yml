@@ -1,0 +1,65 @@
+---
+- name: Ensure Starship dependencies are installed
+  block:
+    - name: Check if Starship is already installed
+      win_shell: Get-Command starship -ErrorAction SilentlyContinue
+      register: starship_check
+      failed_when: false
+      changed_when: false
+
+    - name: Install Starship using winget
+      win_command: winget install -e --id Starship.Starship
+      when: starship_check.rc != 0
+
+    - name: Check if Clink is already installed
+      win_shell: Get-Command clink -ErrorAction SilentlyContinue
+      register: clink_check
+      failed_when: false
+      changed_when: false
+
+    - name: Install Clink using winget
+      win_command: winget install -e --id chrisant996.Clink
+      when: clink_check.rc != 0
+
+- name: Configure Starship for CMD
+  block:
+    - name: Ensure Clink directory exists
+      win_file:
+        path: '{{ ansible_env.LOCALAPPDATA }}\clink'
+        state: directory
+
+    - name: Create Starship Lua script for Clink
+      win_copy:
+        dest: '{{ ansible_env.LOCALAPPDATA }}\clink\starship.lua'
+        content: 'load(io.popen("starship init cmd"):read("*a"))()'
+
+- name: Configure Starship for PowerShell
+  block:
+    - name: Get PowerShell profile path
+      win_shell: echo $PROFILE
+      register: powershell_profile
+      changed_when: false
+
+    - name: Ensure PowerShell profile directory exists
+      win_file:
+        path: "{{ powershell_profile.stdout | win_dirname }}"
+        state: directory
+
+    - name: Add Starship initialization to PowerShell profile
+      win_lineinfile:
+        path: "{{ powershell_profile.stdout }}"
+        line: "Invoke-Expression (&starship init powershell)"
+        create: yes
+
+- name: Create Starship configuration with lambda theme
+  block:
+    - name: Ensure config directory exists
+      win_file:
+        path: '{{ ansible_env.USERPROFILE }}\.config'
+        state: directory
+
+    - name: Create zshrc from template
+      ansible.builtin.template:
+        src: starship.toml.j2
+        dest: '{{ ansible_env.USERPROFILE }}\.config\starship.toml'
+        backup: true
