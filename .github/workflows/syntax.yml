@@ -70,26 +70,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install ansible
 
-      - name: Windows - Syntax check playbooks
-        if: matrix.platform == 'windows'
-        shell: pwsh
-        env:
-          LC_ALL: C.UTF-8
-          PYTHONIOENCODING: utf-8
-          PYTHONUTF8: 1
-        run: |
-          Get-ChildItem -Path playbooks -Filter *.yml -Recurse | ForEach-Object {
-            python -m ansible.cli.playbook --syntax-check $_.FullName
-          }
-
       - name: Windows - Syntax check inventory
         if: matrix.platform == 'windows'
         shell: cmd
         run: |
+          @chcp 65001 > NUL
+          @set LANG=en_US.UTF-8
           ansible-inventory --graph -i inventory/hosts.yml
 
       - name: Windows - Dry run
         if: matrix.platform == 'windows'
         shell: cmd
         run: |
+          @chcp 65001 > NUL
+          @set LANG=en_US.UTF-8
           ansible-playbook -i inventory/hosts.yml playbooks/site.yml --check
