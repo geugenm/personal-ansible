@@ -27,5 +27,4 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV ANSIBLE_HOST_KEY_CHECKING=false
 
-ENTRYPOINT ["ansible-playbook"]
-CMD ["-i", "inventory/hosts.yml", "playbooks/site.yml"]
+CMD ["ansible-playbook", "-i", "inventory/hosts.yml", "playbooks/site.yml"]
