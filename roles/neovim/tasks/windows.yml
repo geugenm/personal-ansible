@@ -1,0 +1,40 @@
+---
+- name: Install Neovim via Chocolatey
+  win_chocolatey:
+    name: neovim
+    state: present
+
+- name: Backup and clean Neovim directories
+  win_shell: |
+    $config_dir = "$env:LOCALAPPDATA\nvim"
+    $data_dir = "$env:LOCALAPPDATA\nvim-data" 
+    $state_dir = "$env:LOCALAPPDATA\nvim-state"
+    $cache_dir = "$env:LOCALAPPDATA\nvim-cache"
+
+    # Backup and remove config directory
+    if (Test-Path $config_dir) {
+      Rename-Item -Path $config_dir -NewName "nvim.bak" -Force -ErrorAction SilentlyContinue
+    }
+
+    # Backup and remove data directory - critical step that was missing
+    if (Test-Path $data_dir) {
+      Rename-Item -Path $data_dir -NewName "nvim-data.bak" -Force -ErrorAction SilentlyContinue
+    }
+
+    # Backup other directories
+    if (Test-Path $state_dir) {
+      Rename-Item -Path $state_dir -NewName "nvim-state.bak" -Force -ErrorAction SilentlyContinue
+    }
+
+    if (Test-Path $cache_dir) {
+      Rename-Item -Path $cache_dir -NewName "nvim-cache.bak" -Force -ErrorAction SilentlyContinue
+    }
+
+- name: Create config directory
+  win_file:
+    path: "{{ ansible_env.LOCALAPPDATA }}\\nvim"
+    state: directory
+
+- name: Clone nvim-config
+  win_shell: |
+    git clone {{ neovim_config_repo }} "$env:LOCALAPPDATA\nvim"

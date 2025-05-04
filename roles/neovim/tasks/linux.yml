@@ -1,0 +1,22 @@
+---
+- name: Install Neovim on Linux
+  become: true
+  package:
+    name: neovim
+    state: present
+
+- name: Backup existing Neovim configuration
+  shell: |
+    [ -d ~/.config/nvim ] && mv ~/.config/nvim{,.bak} || true
+    [ -d ~/.local/share/nvim ] && mv ~/.local/share/nvim{,.bak} || true
+    [ -d ~/.local/state/nvim ] && mv ~/.local/state/nvim{,.bak} || true
+    [ -d ~/.cache/nvim ] && mv ~/.cache/nvim{,.bak} || true
+  args:
+    executable: /bin/bash
+    warn: false
+
+- name: Clone nvim-config to ~/.config/nvim
+  git:
+    repo: "{{ neovim_config_repo }}"
+    dest: "{{ ansible_env.HOME }}/.config/nvim"
+    force: yes

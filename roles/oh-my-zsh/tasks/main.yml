@@ -1,4 +1,12 @@
 ---
+- name: Check if system is Linux
+  ansible.builtin.set_fact:
+    is_linux: "{{ ansible_os_family == 'Linux' }}"
+
+- name: Skip Oh My Zsh on non-Linux systems
+  ansible.builtin.meta: end_play
+  when: not is_linux
+
 - name: Install zsh
   become: true
   ansible.builtin.package:
