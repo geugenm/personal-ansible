@@ -28,12 +28,15 @@
       - dotnet
       - vulkan-sdk
       - starship
+      - doxygen
       - nodejs
-      - vscodium
       - visualstudio2022enterprise
       - openjdk
+      - rust
     system_utils:
       - 7zip.install
+      - ripgrep
+      - fzf
       - attributechanger
       - bulk-crap-uninstaller
       - simplewall.install
