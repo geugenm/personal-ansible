@@ -18,7 +18,8 @@ jobs:
   syntax-check:
     strategy:
       matrix:
-        platform: [linux, windows]
+        # Temp disabled windows due to UTF8 errors with ansible platform: [linux, windows]
+        platform: [linux]
         include:
           - platform: linux
             os: fedora-latest
